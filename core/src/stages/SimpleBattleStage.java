@@ -52,11 +52,11 @@ public class SimpleBattleStage {
 		player.showCharacter(batch);
 
 		enemy.showCharacter(batch);
-		
+
 		batch.end();
-		
+
 		displayHealth(player);
-		
+
 		displayHealth(enemy);
 
 		if (isAttacking) {
@@ -66,36 +66,17 @@ public class SimpleBattleStage {
 				if (MyGdxGame.input.onePressed) {
 					// TODO add this so it makes the person attack with the move
 					// they have
-					if (player.getAbility(0) != null) {
-						isAttacking = true;
-						currentAbilityIndex = 0;
-						player.initializeAbility(currentAbilityIndex, true, 100);
-					}
+					useAbility(0, player, true);
 				} else if (MyGdxGame.input.twoPressed) {
 					System.out.println("Strong Attack");
-					if (player.getAbility(1) != null) {
-						isAttacking = true;
-						currentAbilityIndex = 1;
-						player.initializeAbility(currentAbilityIndex, true, 100);
-					}
-					// TODO make this be an actual attack and not end the battle
-					// isBattling = false;
+					useAbility(1, player, true);
 				} else if (MyGdxGame.input.threePressed) {
 					System.out.println("Strong Attack");
-					if (player.getAbility(2) != null) {
-						isAttacking = true;
-						currentAbilityIndex = 2;
-						player.initializeAbility(currentAbilityIndex, true, 100);
-					}
-				} else if (MyGdxGame.input.wPressed) {
-					isBattling = false;
+					useAbility(2, player, true);
 				}
 			} else {
 				currentAbilityIndex = MyGdxGame.rand.nextInt(enemy.getAbilityCount());
-				isAttacking = true;
-				System.out.println("Enemy Ability Index: " + currentAbilityIndex);
-				enemy.getAbility(currentAbilityIndex);
-				enemy.initializeAbility(currentAbilityIndex, false, 400);
+				useAbility(currentAbilityIndex, enemy, false);
 			}
 		}
 	}
@@ -103,7 +84,9 @@ public class SimpleBattleStage {
 	private void displayHealth(CollidingGenericCharacter character) {
 		shapeRenderer.begin(ShapeType.Filled);
 		shapeRenderer.setColor(255, 0, 0, 100);
-		shapeRenderer.rect((float) (character.getXPos() + character.getBounds().getWidth() / 2 - 0.5 * healthBarWidth), character.getYPos() + (character.getBounds().getHeight()), healthBarWidth * (Float.valueOf(character.getHealth()) / Float.valueOf(character.getMaxHealth())), 10);
+		shapeRenderer.rect((float) (character.getXPos() + character.getBounds().getWidth() / 2 - 0.5 * healthBarWidth),
+				character.getYPos() + (character.getBounds().getHeight()),
+				healthBarWidth * (Float.valueOf(character.getHealth()) / Float.valueOf(character.getMaxHealth())), 10);
 		shapeRenderer.end();
 	}
 
@@ -135,5 +118,28 @@ public class SimpleBattleStage {
 
 	public boolean getBattlingStatus() {
 		return isBattling;
+	}
+
+	public boolean useAbility(int index, CollidingGenericCharacter character, boolean isPlayer) {
+		if (player.getAbility(index) != null) {
+			if (player.getAbility(index).getCurrentCooldown() <= 0) {
+				isAttacking = true;
+				currentAbilityIndex = index;
+				player.initializeAbility(currentAbilityIndex, true, Math.round(character.getXPos() / 10));
+				return true;
+			} else {
+				if (isPlayer) {
+					cooldownNotify();
+				}
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
+
+	public void cooldownNotify() {
+		System.out.println("On cooldown");
+		// TODO add cooldown notify
 	}
 }

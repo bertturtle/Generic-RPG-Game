@@ -37,7 +37,6 @@ public class SimpleAbility {
 	
 	public void decreaseCooldown(int cooldownDecrease) {
 		currentCooldown -= cooldownDecrease;
-		//Hi
 	}
 	
 	public int getStaticDamage() {
